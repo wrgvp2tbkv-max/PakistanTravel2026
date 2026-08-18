@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Pakistan Odyssey · Aug 20 – Sep 1</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: {
+          emerald: { 50:'#ecfdf5',100:'#d1fae5',200:'#a7f3d0',300:'#6ee7b7',400:'#34d399',500:'#10b981',600:'#059669',700:'#047857',800:'#065f46',900:'#064e3b',950:'#022c22' },
+          gold: { 50:'#fdf9ec',100:'#faf0c9',200:'#f4e08f',300:'#eecd52',400:'#e8bb2d',500:'#d4af37',600:'#b3891f',700:'#8f671b',800:'#76521c',900:'#65441c' }
+        },
+        fontFamily: { serif: ['Georgia','Cambria','"Times New Roman"','serif'], sans: ['-apple-system','system-ui','sans-serif'] }
+      }
+    }
+  }
+</script>
+<style>
+  * { -webkit-tap-highlight-color: transparent; }
+  body { font-family: -apple-system, system-ui, sans-serif; }
+  .font-display { font-family: Georgia, 'Cambria', serif; }
+  ::-webkit-scrollbar { display: none; }
+  .card-enter { animation: cardIn .4s ease both; }
+  @keyframes cardIn { from { opacity:0; transform: translateY(10px);} to {opacity:1; transform: translateY(0);} }
+  .tab-view { display:none; }
+  .tab-view.active { display:block; }
+  .nav-item.active-nav .nav-icon { transform: translateY(-3px); }
+  .gold-line { background: linear-gradient(90deg, transparent, #d4af37, transparent); height:1px; }
+  .chip { transition: all .2s ease; }
+  .chip:active { transform: scale(0.96); }
+  input[type=checkbox].emerald-check { accent-color: #059669; }
+  .glass { backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+  .skeleton-fade::before { content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0) 70%, rgba(0,0,0,.55) 100%); }
+</style>
+</head>
+<body class="bg-stone-50 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-50 transition-colors duration-300 pb-24 min-h-screen">
+
+<!-- HEADER -->
+<header class="sticky top-0 z-40 glass bg-white/90 dark:bg-emerald-950/90 border-b border-gold-300/30 dark:border-gold-700/30">
+  <div class="px-4 pt-4 pb-3">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-[10px] uppercase tracking-[0.25em] text-gold-600 dark:text-gold-400 font-semibold">The Karakoram Circuit</p>
+        <h1 class="font-display text-2xl leading-tight text-emerald-900 dark:text-gold-200">Pakistan Odyssey</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="darkToggle" class="w-10 h-10 rounded-full bg-emerald-800 dark:bg-gold-500 text-gold-300 dark:text-emerald-950 flex items-center justify-center shadow-lg active:scale-90 transition">
+          <i class="fa-solid fa-moon dark:hidden"></i>
+          <i class="fa-solid fa-sun hidden dark:block"></i>
+        </button>
+      </div>
+    </div>
+    <div class="gold-line my-3"></div>
+    <div class="relative">
+      <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-emerald-400 dark:text-gold-500 text-sm"></i>
+      <input id="searchInput" type="text" placeholder="Search places, food, hotels, tips…"
+        class="w-full bg-emerald-50 dark:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-800 rounded-2xl py-2.5 pl-10 pr-4 text-sm placeholder:text-emerald-400 dark:placeholder:text-emerald-500 focus:outline-none focus:ring-2 focus:ring-gold-400">
+    </div>
+    <div class="flex items-center justify-between mt-3 text-xs">
+      <span class="text-emerald-600 dark:text-emerald-400"><i class="fa-regular fa-calendar mr-1"></i>Aug 20 – Sep 1 · 13 Days</span>
+      <span id="progressLabel" class="font-semibold text-gold-600 dark:text-gold-400">0% explored</span>
+    </div>
+    <div class="w-full h-1.5 bg-emerald-100 dark:bg-emerald-900 rounded-full mt-1.5 overflow-hidden">
+      <div id="progressBar" class="h-full bg-gradient-to-r from-emerald-600 to-gold-400 rounded-full transition-all duration-500" style="width:0%"></div>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="px-4 pt-4">
+
+  <!-- ITINERARY TAB -->
+  <section id="view-itinerary" class="tab-view active space-y-3"></section>
+
+  <!-- ATTRACTIONS TAB -->
+  <section id="view-attractions" class="tab-view space-y-3"></section>
+
+  <!-- HOTELS & EATS TAB -->
+  <section id="view-hotels" class="tab-view space-y-5"></section>
+
+  <!-- INSIGHTS TAB -->
+  <section id="view-insights" class="tab-view space-y-4"></section>
+
+  <!-- BUDGET TAB -->
+  <section id="view-budget" class="tab-view space-y-4"></section>
+
+</main>
+
+<!-- BOTTOM NAV -->
+<nav class="fixed bottom-0 left-0 right-0 z-50 glass bg-white/95 dark:bg-emerald-950/95 border-t border-gold-300/30 dark:border-gold-700/30 px-1 pt-2 pb-[env(safe-area-inset-bottom,10px)]">
+  <div class="grid grid-cols-5 gap-1">
+    <button data-tab="itinerary" class="nav-item active-nav flex flex-col items-center py-1.5 rounded-xl text-emerald-800 dark:text-gold-300">
+      <i class="nav-icon fa-solid fa-route text-lg transition-transform"></i>
+      <span class="text-[10px] mt-1 font-medium">Itinerary</span>
+    </button>
+    <button data-tab="attractions" class="nav-item flex flex-col items-center py-1.5 rounded-xl text-emerald-400 dark:text-emerald-500">
+      <i class="nav-icon fa-solid fa-mountain-sun text-lg transition-transform"></i>
+      <span class="text-[10px] mt-1 font-medium">Attractions</span>
+    </button>
+    <button data-tab="hotels" class="nav-item flex flex-col items-center py-1.5 rounded-xl text-emerald-400 dark:text-emerald-500">
+      <i class="nav-icon fa-solid fa-bed text-lg transition-transform"></i>
+      <span class="text-[10px] mt-1 font-medium">Hotels&nbsp;&amp;&nbsp;Eats</span>
+    </button>
+    <button data-tab="insights" class="nav-item flex flex-col items-center py-1.5 rounded-xl text-emerald-400 dark:text-emerald-500">
+      <i class="nav-icon fa-solid fa-circle-info text-lg transition-transform"></i>
+      <span class="text-[10px] mt-1 font-medium">Insights</span>
+    </button>
+    <button data-tab="budget" class="nav-item flex flex-col items-center py-1.5 rounded-xl text-emerald-400 dark:text-emerald-500">
+      <i class="nav-icon fa-solid fa-calculator text-lg transition-transform"></i>
+      <span class="text-[10px] mt-1 font-medium">Budget</span>
+    </button>
+  </div>
+</nav>
+
+<script>
+/* ======================= DATA ======================= */
+
+const itinerary = [
+  { day:1, date:"Aug 20", region:"Islamabad", title:"Arrival in the Capital", desc:"Land at Islamabad International Airport, transfer to hotel, settle in and rest from the journey. Evening stroll at Centaurus or F-7 markaz for a light dinner.",
+    stops:["Airport pickup & hotel check-in","F-7 Markaz evening walk","Early rest — long drives ahead"] },
+  { day:2, date:"Aug 21", region:"Islamabad", title:"Mosques, Museums & Margalla Views", desc:"Full day exploring the capital's cultural landmarks before heading north tomorrow.",
+    stops:["Faisal Mosque — sunrise visit","Lok Virsa Museum (Heritage Museum)","Daman-e-Koh viewpoint","Dinner at Monal Restaurant, Margalla Hills"] },
+  { day:3, date:"Aug 22", region:"En Route to Hunza", title:"Karakoram Highway North", desc:"Early departure along the KKH via Besham and Chilas. Long scenic drive — Nanga Parbat viewpoint en route. Overnight in Hunza (Karimabad).",
+    stops:["KKH drive via Besham & Chilas","Nanga Parbat viewpoint stop","Arrive Karimabad by evening"] },
+  { day:4, date:"Aug 23", region:"Hunza Valley", title:"Karimabad, Baltit & Altit Forts", desc:"Explore the heart of Hunza — centuries-old royal forts and panoramic valley views.",
+    stops:["Baltit Fort tour","Altit Fort & Royal Gardens","Karimabad Bazaar for local crafts & dried fruit"] },
+  { day:5, date:"Aug 24", region:"Upper Hunza", title:"Attabad Lake & Passu Cones", desc:"Day trip north to the turquoise Attabad Lake, the dramatic Passu Cones, and the thrilling Hussaini Suspension Bridge.",
+    stops:["Attabad Lake — boating & jet-ski","Passu Cones photo stop","Hussaini Suspension Bridge crossing","Passu village apricot orchards"] },
+  { day:6, date:"Aug 25", region:"Hunza Valley", title:"Leisure & Khunjerab (Optional)", desc:"Free morning for Eagle's Nest sunrise viewpoint, or an optional extended trip toward Khunjerab Pass. Afternoon rest before the transfer to Skardu.",
+    stops:["Eagle's Nest sunrise viewpoint","Optional: Khunjerab Pass extension","Pack & prepare for Skardu transfer"] },
+  { day:7, date:"Aug 26", region:"En Route to Skardu", title:"Gilgit to Shigar Valley", desc:"Drive via Gilgit to Skardu, with a detour into the serene Shigar Valley before reaching Skardu town.",
+    stops:["Drive via Gilgit","Shigar Fort & Shigar Valley","Arrive Skardu, evening at leisure"] },
+  { day:8, date:"Aug 27", region:"Skardu", title:"Shangrila Lake & Cold Desert", desc:"Explore Skardu's signature landscapes — the resort lake of Shangrila and the unique high-altitude Katpana Cold Desert.",
+    stops:["Shangrila (Lower Kachura) Lake","Katpana Cold Desert dune walk","Skardu Bazaar & Kharpocho Fort viewpoint"] },
+  { day:9, date:"Aug 28", region:"Deosai Plains", title:"Deosai National Park", desc:"Full-day excursion to the 'Land of Giants' — vast alpine plateau, Sheosar Lake, and rich wildlife including the Himalayan brown bear.",
+    stops:["4x4 drive into Deosai","Sheosar Lake picnic stop","Wildlife spotting — brown bear habitat","Return to Skardu by nightfall"] },
+  { day:10, date:"Aug 29", region:"En Route to Naran", title:"Babusar Pass Crossing", desc:"Travel back south via Gilgit and cross the dramatic Babusar Top into the Kaghan Valley, arriving in Naran.",
+    stops:["Drive via Gilgit / Chilas","Babusar Pass (4,173 m) crossing","Arrive Naran, evening at Naran Bazaar"] },
+  { day:11, date:"Aug 30", region:"Naran / Kaghan", title:"Saif-ul-Malook & Kaghan Valley", desc:"Jeep excursion to the legendary Saif-ul-Malook Lake, then explore the wider Kaghan Valley before the final leg to Lahore.",
+    stops:["Lake Saif-ul-Malook jeep trip","Kaghan Valley scenic drive","Evening flight/departure prep to Lahore"] },
+  { day:12, date:"Aug 31", region:"Lahore", title:"Mughal Heritage Begins", desc:"Fly into Lahore and dive into the city's Mughal-era grandeur.",
+    stops:["Badshahi Mosque","Lahore Fort & Sheesh Mahal","Sunset at Hazuri Bagh"] },
+  { day:13, date:"Sep 1", region:"Lahore", title:"Walled City, Food Street & Departure", desc:"Final day wandering the Walled City's bazaars before an evening flight home.",
+    stops:["Walled City heritage walk (Delhi Gate)","Wazir Khan Mosque","Lahore Food Street dinner","Transfer to airport for departure"] },
+];
+
+const attractions = [
+  { name:"Faisal Mosque", region:"Islamabad", fee:"Free entry", hours:"Best: sunrise or after Asr (5–7pm)", tip:"Photograph from the Margalla foothills terrace for the full triangular facade.", icon:"fa-mosque" },
+  { name:"Lok Virsa Heritage Museum", region:"Islamabad", fee:"~PKR 50–100", hours:"9am–4pm, closed Mondays", tip:"Truck-art courtyard is the best photo spot; go early to avoid school groups.", icon:"fa-landmark" },
+  { name:"Daman-e-Koh", region:"Islamabad", fee:"Free (parking fee applies)", hours:"Evening, just before sunset", tip:"Wide-angle shots of the entire city skyline against the Margalla range.", icon:"fa-mountain" },
+  { name:"Baltit Fort", region:"Hunza", fee:"~PKR 400 (foreigners higher)", hours:"9am–5pm daily", tip:"Rooftop terrace gives the classic postcard view over Karimabad and Rakaposhi.", icon:"fa-chess-rook" },
+  { name:"Altit Fort", region:"Hunza", fee:"~PKR 400", hours:"9am–5pm daily", tip:"Older of the two forts — the cliffside garden viewpoint over the Hunza river gorge is unmissable.", icon:"fa-chess-rook" },
+  { name:"Attabad Lake", region:"Upper Hunza", fee:"Boating ~PKR 500–1500/person", hours:"9am–5pm, best light midday", tip:"The turquoise colour is most vivid on a clear afternoon; boat rides show the submerged village edge.", icon:"fa-water" },
+  { name:"Passu Cones", region:"Upper Hunza", fee:"Free viewpoint", hours:"Golden hour — early morning or sunset", tip:"Shoot from the suspension bridge or the Passu village fields for cone reflections.", icon:"fa-mountain-sun" },
+  { name:"Hussaini Suspension Bridge", region:"Upper Hunza", fee:"Free / small donation", hours:"Daylight hours only, avoid strong wind", tip:"One of the world's most photogenic (and wobbly) bridges — cross early for fewer crowds.", icon:"fa-bridge" },
+  { name:"Shangrila (Lower Kachura) Lake", region:"Skardu", fee:"~PKR 500 entry", hours:"9am–6pm", tip:"The iconic red 'Heaven on Earth' gate and airplane-shaped restaurant are the signature shots.", icon:"fa-water" },
+  { name:"Katpana Cold Desert", region:"Skardu", fee:"Free", hours:"Sunset for dune shadows", tip:"High-altitude sand dunes against snow peaks — rare combination, best photographed at golden hour.", icon:"fa-sun" },
+  { name:"Deosai National Park", region:"Deosai Plains", fee:"~PKR 100–500 park fee", hours:"Day trip only, gates close by dusk", tip:"Sheosar Lake mirrors the sky on calm mornings; watch for brown bears from a safe distance.", icon:"fa-paw" },
+  { name:"Shigar Fort (Fong Khar)", region:"Shigar Valley", fee:"~PKR 300", hours:"9am–5pm", tip:"Now a heritage hotel — non-guests can tour the museum wing and riverside gardens.", icon:"fa-chess-rook" },
+  { name:"Lake Saif-ul-Malook", region:"Naran", fee:"Jeep transfer ~PKR 2000–3000 return", hours:"Morning, before afternoon cloud cover", tip:"Legend says fairies visit at full moon — arrive early for a still, mirror-like reflection of Malika Parbat.", icon:"fa-water" },
+  { name:"Babusar Pass", region:"Kaghan/Hunza border", fee:"Free (road toll may apply)", hours:"Open roughly Jun–Oct, weather dependent", tip:"Snow can linger into August — carry warm layers even mid-summer.", icon:"fa-mountain" },
+  { name:"Badshahi Mosque", region:"Lahore", fee:"Free / small camera fee", hours:"Best at sunset when floodlit", tip:"Climb the minaret (extra fee) for a rooftop view over the Fort and Walled City.", icon:"fa-mosque" },
+  { name:"Lahore Fort", region:"Lahore", fee:"~PKR 500 (foreigners)", hours:"9am–6pm", tip:"Sheesh Mahal's mirror-work glows best in soft afternoon light through the lattice windows.", icon:"fa-landmark" },
+  { name:"Walled City / Delhi Gate", region:"Lahore", fee:"Free to wander", hours:"Late afternoon into evening", tip:"Take a guided rooftop-hopping walk for layered views over the old city rooftops.", icon:"fa-gate" },
+];
+
+const hotels = [
+  { name:"Islamabad Serena Hotel", tier:"Luxury", area:"Islamabad", note:"5-star with Margalla views, ideal first/last night base." },
+  { name:"Serena Hunza (Karimabad)", tier:"Luxury", area:"Hunza", note:"Terraced luxury property overlooking Rakaposhi and the valley." },
+  { name:"Shangrila Resort Skardu", tier:"Luxury", area:"Skardu (Kachura)", note:"Iconic lakeside resort with cottages and the famous 'gate to heaven.'" },
+  { name:"Shigar Fort Residence", tier:"Boutique Heritage", area:"Shigar Valley", note:"Restored royal fort turned heritage hotel — book well ahead." },
+  { name:"PTDC Motels (Naran / Chilas / Skardu)", tier:"Mid-range", area:"Multiple", note:"Government-run, reliable and scenic, basic amenities." },
+  { name:"Hunza Baltit Heritage Guesthouses", tier:"Local Guesthouse", area:"Karimabad", note:"Family-run stays near Baltit Fort, warm hospitality, home-cooked meals." },
+  { name:"Deosai Camping (tented eco-camps)", tier:"Camping", area:"Deosai Plains", note:"Seasonal tented camps for the Deosai overnight or day-trip base near Sheosar Lake." },
+  { name:"Faletti's / Avari Lahore", tier:"Luxury", area:"Lahore", note:"Colonial-era and modern 5-star options close to the Mall Road and old city." },
+];
+
+const food = [
+  { dish:"Chapli Kebab", origin:"Peshawar / KPK", desc:"Spiced minced-meat patty, pan-fried — a Northern Pakistan staple.", where:"Roadside dhabas along the KKH, Islamabad's food streets." },
+  { dish:"Shinwari Karahi", origin:"Khyber Pakhtunkhwa", desc:"Simple, rich mutton or chicken karahi cooked with minimal spices, tomato and ghee.", where:"Monal Restaurant, Islamabad; Shinwari eateries in Gilgit-Baltistan." },
+  { dish:"Hunza Walnut Cake", origin:"Hunza Valley", desc:"Dense, spiced local cake made with Hunza walnuts and apricot oil.", where:"Karimabad bakeries and guesthouse kitchens." },
+  { dish:"Apricot & Mulberry specialities", origin:"Hunza / Gilgit-Baltistan", desc:"Dried apricots, apricot oil, and mulberry juice — regional signatures in August season.", where:"Karimabad Bazaar stalls." },
+  { dish:"Mantu & Balti Dumplings", origin:"Gilgit-Baltistan", desc:"Steamed dumplings with meat or vegetable filling, served with yoghurt-garlic sauce.", where:"Local restaurants in Skardu and Gilgit." },
+  { dish:"Daal Chawal & Balti Cuisine", origin:"Baltistan", desc:"Hearty lentil and rice dishes, often paired with local butter tea (paiyu cha).", where:"Skardu town eateries." },
+  { dish:"Lahori Food Street Fare", origin:"Lahore", desc:"Nihari, siri paye, kulfi falooda and grilled specialties in a historic courtyard setting.", where:"Fort Road Food Street, Lahore." },
+  { dish:"Peshawari Naan & Karahi Gosht", origin:"Punjab/KPK belt", desc:"Tandoor-baked naan paired with rich, slow-cooked meat karahi.", where:"Truck-stop dhabas along the Karakoram Highway." },
+];
+
+const insights = [
+  { icon:"fa-cloud-showers-heavy", color:"text-blue-500", title:"Monsoon & KKH Safety (Late August)",
+    body:"Late August falls within Pakistan's monsoon tail — landslides and flash flooding are the primary risk along the Karakoram Highway (especially Besham–Chilas and Babusar sections). Build 1–2 buffer days into the schedule, check local road-status reports each morning, avoid night driving on mountain roads, and keep a flexible return route via Gilgit if Babusar Pass closes." },
+  { icon:"fa-signal", color:"text-emerald-600", title:"Connectivity",
+    body:"SCOM (Special Communications Organization) is the only reliable network across most of Gilgit-Baltistan and Hunza — buy a SIM in Islamabad or Gilgit before heading north. Zong, Jazz and Telenor cover Islamabad, Lahore and larger towns well but drop out in remote valleys. Download offline maps in advance." },
+  { icon:"fa-money-bill-wave", color:"text-gold-600", title:"Money & Cash",
+    body:"Carry sufficient Pakistani Rupees (PKR) in cash once north of Gilgit — ATMs are scarce and unreliable in Hunza, Skardu and Naran. Islamabad and Lahore have ample ATMs and currency exchange counters. Notify your bank of travel to avoid card blocks; USD and EUR are easiest to exchange in cities." },
+  { icon:"fa-passport", color:"text-emerald-700", title:"Foreigner Registration & Permits",
+    body:"Foreign nationals should register at NOC/police checkpoints along the KKH (routine, usually handled by your guide/driver). No special permit is currently required for Hunza or Skardu, but Deosai and certain border-adjacent zones may require basic checkpoint registration — carry photocopies of your passport and visa." },
+  { icon:"fa-shirt", color:"text-emerald-500", title:"Local Dress Code",
+    body:"Modest, conservative clothing is expected throughout — shoulders and knees covered for both men and women, especially at mosques and in rural valleys. A light scarf is useful for mosque visits. Hunza and Skardu are relatively relaxed but still culturally conservative." },
+  { icon:"fa-phone-volume", color:"text-red-500", title:"Emergency Numbers",
+    body:"Police: 15 · Ambulance/Rescue: 1122 · Tourist Police (Islamabad): 1915 · Always share your daily route with your hotel/guide and keep a physical map as backup in low-signal valleys." },
+];
+
+/* ======================= STATE ======================= */
+const STORAGE_KEY = "pk_odyssey_state_v1";
+let state = loadState();
+
+function loadState(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e){}
+  return { checkedDays:{}, checkedStops:{}, checkedAttractions:{}, notes:{}, darkMode:false, budgetEntries:[], currency:"USD", rate: 278 };
+}
+function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+/* ======================= RENDER: ITINERARY ======================= */
+function renderItinerary(filter=""){
+  const el = document.getElementById("view-itinerary");
+  const f = filter.toLowerCase();
+  const items = itinerary.filter(d =>
+    !f || d.title.toLowerCase().includes(f) || d.region.toLowerCase().includes(f) || d.desc.toLowerCase().includes(f) || d.stops.some(s=>s.toLowerCase().includes(f))
+  );
+  el.innerHTML = items.map(d => {
+    const isChecked = !!state.checkedDays[d.day];
+    return `
+    <div class="card-enter bg-white dark:bg-emerald-900/40 rounded-2xl p-4 shadow-sm border border-emerald-100 dark:border-emerald-800 ${isChecked ? 'ring-1 ring-gold-400' : ''}">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 shrink-0 rounded-xl bg-emerald-800 dark:bg-gold-500 text-gold-300 dark:text-emerald-950 flex flex-col items-center justify-center leading-none">
+            <span class="text-[9px] uppercase tracking-wide">Day</span>
+            <span class="text-base font-bold">${d.day}</span>
+          </div>
+          <div>
+            <p class="text-[11px] uppercase tracking-wide text-gold-600 dark:text-gold-400 font-semibold">${d.date} · ${d.region}</p>
+            <h3 class="font-display text-lg leading-snug text-emerald-900 dark:text-gold-100">${d.title}</h3>
+          </div>
+        </div>
+        <button class="dayCheck shrink-0 w-8 h-8 rounded-full flex items-center justify-center border-2 ${isChecked ? 'bg-gold-400 border-gold-400 text-emerald-950' : 'border-emerald-300 dark:border-emerald-700 text-transparent'}" data-day="${d.day}">
+          <i class="fa-solid fa-check text-xs"></i>
+        </button>
+      </div>
+      <p class="text-sm text-emerald-700 dark:text-emerald-300 mt-2 leading-relaxed">${d.desc}</p>
+      <div class="mt-3 space-y-1.5">
+        ${d.stops.map((s,i) => {
+          const key = `${d.day}-${i}`;
+          const sc = !!state.checkedStops[key];
+          return `
+          <label class="flex items-center gap-2 text-sm cursor-pointer">
+            <input type="checkbox" class="emerald-check stopCheck w-4 h-4 rounded" data-key="${key}" ${sc?'checked':''}>
+            <span class="${sc ? 'line-through text-emerald-400 dark:text-emerald-600' : 'text-emerald-800 dark:text-emerald-200'}">${s}</span>
+          </label>`;
+        }).join("")}
+      </div>
+      <textarea placeholder="Add a note for this day…" data-noteday="${d.day}"
+        class="w-full mt-3 text-xs bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-xl p-2.5 placeholder:text-emerald-400 focus:outline-none focus:ring-1 focus:ring-gold-400 resize-none" rows="2">${state.notes[d.day]||""}</textarea>
+    </div>`;
+  }).join("") || emptyState("No days match your search.");
+  attachItineraryListeners();
+  updateProgress();
+}
+
+function attachItineraryListeners(){
+  document.querySelectorAll(".dayCheck").forEach(btn=>{
+    btn.onclick = () => {
+      const day = btn.dataset.day;
+      state.checkedDays[day] = !state.checkedDays[day];
+      saveState(); renderItinerary(document.getElementById("searchInput").value);
+    };
+  });
+  document.querySelectorAll(".stopCheck").forEach(cb=>{
+    cb.onchange = () => {
+      state.checkedStops[cb.dataset.key] = cb.checked;
+      saveState(); renderItinerary(document.getElementById("searchInput").value);
+    };
+  });
+  document.querySelectorAll("[data-noteday]").forEach(ta=>{
+    ta.oninput = () => { state.notes[ta.dataset.noteday] = ta.value; saveState(); };
+  });
+}
+
+/* ======================= RENDER: ATTRACTIONS ======================= */
+function renderAttractions(filter=""){
+  const el = document.getElementById("view-attractions");
+  const f = filter.toLowerCase();
+  const items = attractions.filter(a => !f || a.name.toLowerCase().includes(f) || a.region.toLowerCase().includes(f) || a.tip.toLowerCase().includes(f));
+  el.innerHTML = items.map((a,idx) => {
+    const key = a.name;
+    const checked = !!state.checkedAttractions[key];
+    return `
+    <div class="card-enter bg-white dark:bg-emerald-900/40 rounded-2xl p-4 shadow-sm border border-emerald-100 dark:border-emerald-800 flex gap-3">
+      <div class="w-12 h-12 shrink-0 rounded-full bg-emerald-50 dark:bg-emerald-950 border border-gold-300 dark:border-gold-700 flex items-center justify-center text-emerald-700 dark:text-gold-400">
+        <i class="fa-solid ${a.icon}"></i>
+      </div>
+      <div class="flex-1">
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <h3 class="font-semibold text-emerald-900 dark:text-gold-100">${a.name}</h3>
+            <p class="text-[11px] text-gold-600 dark:text-gold-400 uppercase tracking-wide">${a.region}</p>
+          </div>
+          <button class="attrCheck w-7 h-7 rounded-full flex items-center justify-center border-2 shrink-0 ${checked ? 'bg-gold-400 border-gold-400 text-emerald-950' : 'border-emerald-300 dark:border-emerald-700 text-transparent'}" data-key="${key}">
+            <i class="fa-solid fa-check text-[10px]"></i>
+          </button>
+        </div>
+        <div class="mt-2 space-y-1 text-xs text-emerald-700 dark:text-emerald-300">
+          <p><i class="fa-solid fa-ticket w-4 text-gold-500"></i> ${a.fee}</p>
+          <p><i class="fa-regular fa-clock w-4 text-gold-500"></i> ${a.hours}</p>
+          <p class="pt-1 italic text-emerald-600 dark:text-emerald-400"><i class="fa-solid fa-camera w-4 text-gold-500"></i> ${a.tip}</p>
+        </div>
+      </div>
+    </div>`;
+  }).join("") || emptyState("No attractions match your search.");
+  document.querySelectorAll(".attrCheck").forEach(btn=>{
+    btn.onclick = () => {
+      state.checkedAttractions[btn.dataset.key] = !state.checkedAttractions[btn.dataset.key];
+      saveState(); renderAttractions(document.getElementById("searchInput").value);
+    };
+  });
+  updateProgress();
+}
+
+/* ======================= RENDER: HOTELS & EATS ======================= */
+function renderHotels(filter=""){
+  const el = document.getElementById("view-hotels");
+  const f = filter.toLowerCase();
+  const hItems = hotels.filter(h => !f || h.name.toLowerCase().includes(f) || h.area.toLowerCase().includes(f) || h.tier.toLowerCase().includes(f));
+  const fItems = food.filter(d => !f || d.dish.toLowerCase().includes(f) || d.origin.toLowerCase().includes(f) || d.where.toLowerCase().includes(f));
+
+  const hotelsHtml = hItems.map(h => `
+    <div class="card-enter min-w-[220px] max-w-[220px] bg-white dark:bg-emerald-900/40 rounded-2xl p-3.5 shadow-sm border border-emerald-100 dark:border-emerald-800 shrink-0">
+      <span class="inline-block text-[10px] uppercase tracking-wide font-semibold px-2 py-0.5 rounded-full bg-gold-100 dark:bg-gold-900/40 text-gold-700 dark:text-gold-300 mb-2">${h.tier}</span>
+      <h4 class="font-semibold text-sm text-emerald-900 dark:text-gold-100 leading-snug">${h.name}</h4>
+      <p class="text-[11px] text-emerald-500 dark:text-emerald-400 mt-0.5"><i class="fa-solid fa-location-dot"></i> ${h.area}</p>
+      <p class="text-xs text-emerald-700 dark:text-emerald-300 mt-1.5 leading-relaxed">${h.note}</p>
+    </div>`).join("") || "";
+
+  const foodHtml = fItems.map(d => `
+    <div class="card-enter bg-white dark:bg-emerald-900/40 rounded-2xl p-4 shadow-sm border border-emerald-100 dark:border-emerald-800">
+      <div class="flex items-center justify-between">
+        <h4 class="font-semibold text-emerald-900 dark:text-gold-100">${d.dish}</h4>
+        <span class="text-[10px] uppercase tracking-wide text-gold-600 dark:text-gold-400">${d.origin}</span>
+      </div>
+      <p class="text-sm text-emerald-700 dark:text-emerald-300 mt-1">${d.desc}</p>
+      <p class="text-xs text-emerald-500 dark:text-emerald-400 mt-2"><i class="fa-solid fa-utensils mr-1"></i>${d.where}</p>
+    </div>`).join("");
+
+  el.innerHTML = `
+    <div>
+      <h2 class="font-display text-xl text-emerald-900 dark:text-gold-200 mb-2"><i class="fa-solid fa-bed text-gold-500 mr-2"></i>Stays</h2>
+      <div class="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4">${hotelsHtml || emptyState("No stays match your search.")}</div>
+    </div>
+    <div>
+      <h2 class="font-display text-xl text-emerald-900 dark:text-gold-200 mb-2 mt-2"><i class="fa-solid fa-utensils text-gold-500 mr-2"></i>Food Guide</h2>
+      <div class="space-y-3">${foodHtml || emptyState("No dishes match your search.")}</div>
+    </div>`;
+}
+
+/* ======================= RENDER: INSIGHTS ======================= */
+function renderInsights(filter=""){
+  const el = document.getElementById("view-insights");
+  const f = filter.toLowerCase();
+  const items = insights.filter(i => !f || i.title.toLowerCase().includes(f) || i.body.toLowerCase().includes(f));
+  el.innerHTML = items.map(i => `
+    <div class="card-enter bg-white dark:bg-emerald-900/40 rounded-2xl p-4 shadow-sm border border-emerald-100 dark:border-emerald-800">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="w-9 h-9 rounded-full bg-emerald-50 dark:bg-emerald-950 flex items-center justify-center ${i.color}">
+          <i class="fa-solid ${i.icon}"></i>
+        </div>
+        <h3 class="font-semibold text-emerald-900 dark:text-gold-100">${i.title}</h3>
+      </div>
+      <p class="text-sm text-emerald-700 dark:text-emerald-300 leading-relaxed">${i.body}</p>
+    </div>`).join("") || emptyState("No insights match your search.");
+}
+
+/* ======================= RENDER: BUDGET ======================= */
+const budgetCategories = [
+  {key:"stay", label:"Accommodation", icon:"fa-bed"},
+  {key:"food", label:"Food & Dining", icon:"fa-utensils"},
+  {key:"transport", label:"Transport / Jeep", icon:"fa-van-shuttle"},
+  {key:"entry", label:"Entry Fees", icon:"fa-ticket"},
+  {key:"sim", label:"SIM / Connectivity", icon:"fa-signal"},
+  {key:"misc", label:"Misc / Shopping", icon:"fa-bag-shopping"},
+];
+
+function renderBudget(){
+  const el = document.getElementById("view-budget");
+  const rate = state.rate || 278;
+  const currency = state.currency || "USD";
+  const entries = state.budgetEntries || [];
+  const totalPKR = entries.reduce((s,e)=> s + Number(e.amount||0), 0);
+  const totalConverted = (totalPKR / rate).toFixed(2);
+  const dailyAvg = entries.length ? (totalPKR / 13).toFixed(0) : 0;
+
+  el.innerHTML = `
+    <div class="card-enter bg-gradient-to-br from-emerald-800 to-emerald-900 dark:from-emerald-900 dark:to-emerald-950 rounded-2xl p-5 text-gold-100 shadow-lg border border-gold-500/30">
+      <p class="text-[11px] uppercase tracking-widest text-gold-400">Trip Total So Far</p>
+      <p class="font-display text-3xl mt-1">₨ ${totalPKR.toLocaleString()}</p>
+      <p class="text-sm text-gold-200 mt-1">≈ ${currency === 'USD' ? '$' : '€'}${totalConverted} ${currency}</p>
+      <div class="grid grid-cols-2 gap-3 mt-4 text-center">
+        <div class="bg-white/10 rounded-xl py-2">
+          <p class="text-[10px] uppercase tracking-wide text-gold-300">Daily Avg (13d)</p>
+          <p class="font-semibold">₨ ${Number(dailyAvg).toLocaleString()}</p>
+        </div>
+        <div class="bg-white/10 rounded-xl py-2">
+          <p class="text-[10px] uppercase tracking-wide text-gold-300">Entries Logged</p>
+          <p class="font-semibold">${entries.length}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-enter bg-white dark:bg-emerald-900/40 rounded-2xl p-4 shadow-sm border border-emerald-100 dark:border-emerald-800">
+      <h3 class="font-semibold text-emerald-900 dark:text-gold-100 mb-3"><i class="fa-solid fa-sliders text-gold-500 mr-2"></i>Conversion Settings</h3>
+      <div class="flex items-center gap-2 mb-3">
+        <button data-cur="USD" class="curBtn chip flex-1 py-2 rounded-xl text-sm font-medium border ${currency==='USD' ? 'bg-gold-400 border-gold-400 text-emerald-950' : 'border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300'}">USD ($)</button>
+        <button data-cur="EUR" class="curBtn chip flex-1 py-2 rounded-xl text-sm font-medium border ${currency==='EUR' ? 'bg-gold-400 border-gold-400 text-emerald-950' : 'border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300'}">EUR (€)</button>
+      </div>
+      <label class="text-xs text-emerald-600 dark:text-emerald-400">PKR per 1 ${currency} (edit if rate has moved)</label>
+      <input id="rateInput" type="number" value="${rate}" class="w-full mt-1 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-gold-400">
+      <p class="text-[10px] text-emerald-400 mt-1">Approximate — check a live source before large exchanges.</p>
+    </div>
+
+    <div class="card-enter bg-white dark:bg-emerald-900/40 rounded-2xl p-4 shadow-sm border border-emerald-100 dark:border-emerald-800">
+      <h3 class="font-semibold text-emerald-900 dark:text-gold-100 mb-3"><i class="fa-solid fa-plus text-gold-500 mr-2"></i>Log an Expense</h3>
+      <div class="grid grid-cols-2 gap-2 mb-2">
+        ${budgetCategories.map(c=>`
+          <button data-cat="${c.key}" class="catBtn chip text-xs py-2 rounded-xl border border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 flex items-center justify-center gap-1.5">
+            <i class="fa-solid ${c.icon} text-gold-500"></i>${c.label}
+          </button>`).join("")}
+      </div>
+      <div class="flex gap-2 mt-2">
+        <input id="amountInput" type="number" placeholder="Amount in PKR" class="flex-1 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-gold-400">
+        <button id="addExpenseBtn" class="px-4 rounded-xl bg-emerald-800 dark:bg-gold-500 text-gold-200 dark:text-emerald-950 font-semibold text-sm active:scale-95 transition">Add</button>
+      </div>
+      <p id="selectedCatLabel" class="text-[11px] text-gold-600 dark:text-gold-400 mt-2"></p>
+    </div>
+
+    <div class="card-enter bg-white dark:bg-emerald-900/40 rounded-2xl p-4 shadow-sm border border-emerald-100 dark:border-emerald-800">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold text-emerald-900 dark:text-gold-100"><i class="fa-solid fa-list text-gold-500 mr-2"></i>Expense Log</h3>
+        ${entries.length ? `<button id="clearBudget" class="text-xs text-red-500 font-medium">Clear all</button>` : ""}
+      </div>
+      <div class="space-y-2 max-h-64 overflow-y-auto">
+        ${entries.length ? entries.slice().reverse().map((e,revIdx) => {
+          const i = entries.length - 1 - revIdx;
+          const cat = budgetCategories.find(c=>c.key===e.cat) || budgetCategories[budgetCategories.length-1];
+          return `
+          <div class="flex items-center justify-between text-sm bg-emerald-50 dark:bg-emerald-950/50 rounded-xl px-3 py-2">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid ${cat.icon} text-gold-500 w-4"></i>
+              <span class="text-emerald-800 dark:text-emerald-200">${cat.label}</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="font-semibold text-emerald-900 dark:text-gold-200">₨ ${Number(e.amount).toLocaleString()}</span>
+              <button class="delExpense text-emerald-300 hover:text-red-500" data-idx="${i}"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+          </div>`;
+        }).join("") : emptyState("No expenses logged yet — add your first one above.")}
+      </div>
+    </div>
+  `;
+
+  let selectedCat = "food";
+  const label = document.getElementById("selectedCatLabel");
+  const setLabel = () => { const c = budgetCategories.find(c=>c.key===selectedCat); label.textContent = "Selected: " + c.label; };
+  setLabel();
+
+  document.querySelectorAll(".catBtn").forEach(btn=>{
+    btn.onclick = () => {
+      selectedCat = btn.dataset.cat;
+      document.querySelectorAll(".catBtn").forEach(b=>b.classList.remove("bg-gold-400","border-gold-400","text-emerald-950"));
+      btn.classList.add("bg-gold-400","border-gold-400","text-emerald-950");
+      setLabel();
+    };
+  });
+
+  document.querySelectorAll(".curBtn").forEach(btn=>{
+    btn.onclick = () => { state.currency = btn.dataset.cur; saveState(); renderBudget(); };
+  });
+
+  const rateInput = document.getElementById("rateInput");
+  rateInput.onchange = () => { state.rate = Number(rateInput.value) || 278; saveState(); renderBudget(); };
+
+  document.getElementById("addExpenseBtn").onclick = () => {
+    const amt = document.getElementById("amountInput").value;
+    if (!amt || Number(amt) <= 0) return;
+    state.budgetEntries = state.budgetEntries || [];
+    state.budgetEntries.push({ cat: selectedCat, amount: Number(amt), ts: Date.now() });
+    saveState(); renderBudget();
+  };
+
+  document.querySelectorAll(".delExpense").forEach(btn=>{
+    btn.onclick = () => {
+      state.budgetEntries.splice(Number(btn.dataset.idx),1);
+      saveState(); renderBudget();
+    };
+  });
+
+  const clearBtn = document.getElementById("clearBudget");
+  if (clearBtn) clearBtn.onclick = () => { state.budgetEntries = []; saveState(); renderBudget(); };
+}
+
+/* ======================= HELPERS ======================= */
+function emptyState(msg){
+  return `<div class="text-center py-10 text-emerald-400 dark:text-emerald-600 text-sm">
+    <i class="fa-solid fa-mountain-sun text-2xl mb-2 block"></i>${msg}
+  </div>`;
+}
+
+function updateProgress(){
+  const totalStops = itinerary.reduce((s,d)=>s+d.stops.length,0) + attractions.length;
+  const doneStops = Object.values(state.checkedStops).filter(Boolean).length + Object.values(state.checkedAttractions).filter(Boolean).length;
+  const pct = totalStops ? Math.round((doneStops/totalStops)*100) : 0;
+  document.getElementById("progressBar").style.width = pct + "%";
+  document.getElementById("progressLabel").textContent = pct + "% explored";
+}
+
+/* ======================= TABS ======================= */
+const tabs = ["itinerary","attractions","hotels","insights","budget"];
+function switchTab(name){
+  tabs.forEach(t => {
+    document.getElementById("view-"+t).classList.toggle("active", t===name);
+  });
+  document.querySelectorAll(".nav-item").forEach(btn=>{
+    const active = btn.dataset.tab === name;
+    btn.classList.toggle("active-nav", active);
+    btn.classList.toggle("text-emerald-800", active);
+    btn.classList.toggle("dark:text-gold-300", active);
+    btn.classList.toggle("text-emerald-400", !active);
+    btn.classList.toggle("dark:text-emerald-500", !active);
+  });
+  renderAll(document.getElementById("searchInput").value);
+}
+document.querySelectorAll(".nav-item").forEach(btn=>{
+  btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+});
+
+function renderAll(filter=""){
+  renderItinerary(filter);
+  renderAttractions(filter);
+  renderHotels(filter);
+  renderInsights(filter);
+  renderBudget();
+}
+
+/* ======================= SEARCH ======================= */
+document.getElementById("searchInput").addEventListener("input", (e)=>{
+  renderAll(e.target.value);
+});
+
+/* ======================= DARK MODE ======================= */
+function applyDarkMode(){
+  document.documentElement.classList.toggle("dark", !!state.darkMode);
+}
+document.getElementById("darkToggle").addEventListener("click", ()=>{
+  state.darkMode = !state.darkMode;
+  saveState(); applyDarkMode();
+});
+
+/* ======================= INIT ======================= */
+applyDarkMode();
+renderAll();
+</script>
+</body>
+</html>
