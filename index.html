@@ -197,7 +197,7 @@ const insights = [
   { icon:"fa-signal", color:"text-emerald-600", title:"Connectivity",
     body:"SCOM (Special Communications Organization) is the only reliable network across most of Gilgit-Baltistan and Hunza — buy a SIM in Islamabad or Gilgit before heading north. Zong, Jazz and Telenor cover Islamabad, Lahore and larger towns well but drop out in remote valleys. Download offline maps in advance." },
   { icon:"fa-money-bill-wave", color:"text-gold-600", title:"Money & Cash",
-    body:"Carry sufficient Pakistani Rupees (PKR) in cash once north of Gilgit — ATMs are scarce and unreliable in Hunza, Skardu and Naran. Islamabad and Lahore have ample ATMs and currency exchange counters. Notify your bank of travel to avoid card blocks; USD and PHP are easiest to track relative to local PKR." },
+    body:"Carry sufficient Pakistani Rupees (PKR) in cash once north of Gilgit — ATMs are scarce and unreliable in Hunza, Skardu and Naran. Islamabad and Lahore have ample ATMs and currency exchange counters. Notify your bank of travel to avoid card blocks; USD and EUR are easiest to exchange in cities." },
   { icon:"fa-passport", color:"text-emerald-700", title:"Foreigner Registration & Permits",
     body:"Foreign nationals should register at NOC/police checkpoints along the KKH (routine, usually handled by your guide/driver). No special permit is currently required for Hunza or Skardu, but Deosai and certain border-adjacent zones may require basic checkpoint registration — carry photocopies of your passport and visa." },
   { icon:"fa-shirt", color:"text-emerald-500", title:"Local Dress Code",
@@ -215,7 +215,7 @@ function loadState(){
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw);
   } catch(e){}
-  return { checkedDays:{}, checkedStops:{}, checkedAttractions:{}, notes:{}, darkMode:false, budgetEntries:[], currency:"PHP", rate: 0.206 };
+  return { checkedDays:{}, checkedStops:{}, checkedAttractions:{}, notes:{}, darkMode:false, budgetEntries:[], currency:"USD", rate: 278 };
 }
 function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
@@ -389,25 +389,18 @@ const budgetCategories = [
 
 function renderBudget(){
   const el = document.getElementById("view-budget");
-  const currency = (state.currency === "USD" || state.currency === "PHP") ? state.currency : "PHP";
-  state.currency = currency;
-  
-  const defaultRate = currency === "USD" ? 0.0036 : 0.206;
-  const rate = state.rate !== undefined ? state.rate : defaultRate;
-  state.rate = rate;
-
+  const rate = state.rate || 278;
+  const currency = state.currency || "USD";
   const entries = state.budgetEntries || [];
   const totalPKR = entries.reduce((s,e)=> s + Number(e.amount||0), 0);
-  const totalConverted = (totalPKR * rate).toFixed(2);
+  const totalConverted = (totalPKR / rate).toFixed(2);
   const dailyAvg = entries.length ? (totalPKR / 13).toFixed(0) : 0;
-
-  const currSymbol = currency === 'USD' ? '$' : '₱';
 
   el.innerHTML = `
     <div class="card-enter bg-gradient-to-br from-emerald-800 to-emerald-900 dark:from-emerald-900 dark:to-emerald-950 rounded-2xl p-5 text-gold-100 shadow-lg border border-gold-500/30">
       <p class="text-[11px] uppercase tracking-widest text-gold-400">Trip Total So Far</p>
       <p class="font-display text-3xl mt-1">₨ ${totalPKR.toLocaleString()}</p>
-      <p class="text-sm text-gold-200 mt-1">≈ ${currSymbol}${totalConverted} ${currency}</p>
+      <p class="text-sm text-gold-200 mt-1">≈ ${currency === 'USD' ? '$' : '€'}${totalConverted} ${currency}</p>
       <div class="grid grid-cols-2 gap-3 mt-4 text-center">
         <div class="bg-white/10 rounded-xl py-2">
           <p class="text-[10px] uppercase tracking-wide text-gold-300">Daily Avg (13d)</p>
@@ -423,12 +416,12 @@ function renderBudget(){
     <div class="card-enter bg-white dark:bg-emerald-900/40 rounded-2xl p-4 shadow-sm border border-emerald-100 dark:border-emerald-800">
       <h3 class="font-semibold text-emerald-900 dark:text-gold-100 mb-3"><i class="fa-solid fa-sliders text-gold-500 mr-2"></i>Conversion Settings</h3>
       <div class="flex items-center gap-2 mb-3">
-        <button data-cur="PHP" class="curBtn chip flex-1 py-2 rounded-xl text-sm font-medium border ${currency==='PHP' ? 'bg-gold-400 border-gold-400 text-emerald-950' : 'border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300'}">PHP (₱)</button>
         <button data-cur="USD" class="curBtn chip flex-1 py-2 rounded-xl text-sm font-medium border ${currency==='USD' ? 'bg-gold-400 border-gold-400 text-emerald-950' : 'border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300'}">USD ($)</button>
+        <button data-cur="EUR" class="curBtn chip flex-1 py-2 rounded-xl text-sm font-medium border ${currency==='EUR' ? 'bg-gold-400 border-gold-400 text-emerald-950' : 'border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300'}">EUR (€)</button>
       </div>
-      <label class="text-xs text-emerald-600 dark:text-emerald-400">${currency} per 1 PKR (e.g., 0.206 PHP)</label>
-      <input id="rateInput" type="number" step="0.0001" value="${rate}" class="w-full mt-1 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-gold-400">
-      <p class="text-[10px] text-emerald-400 mt-1">Approximate — check live rates before large exchanges.</p>
+      <label class="text-xs text-emerald-600 dark:text-emerald-400">PKR per 1 ${currency} (edit if rate has moved)</label>
+      <input id="rateInput" type="number" value="${rate}" class="w-full mt-1 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-gold-400">
+      <p class="text-[10px] text-emerald-400 mt-1">Approximate — check a live source before large exchanges.</p>
     </div>
 
     <div class="card-enter bg-white dark:bg-emerald-900/40 rounded-2xl p-4 shadow-sm border border-emerald-100 dark:border-emerald-800">
@@ -486,17 +479,11 @@ function renderBudget(){
   });
 
   document.querySelectorAll(".curBtn").forEach(btn=>{
-    btn.onclick = () => { 
-      const newCur = btn.dataset.cur;
-      state.currency = newCur; 
-      state.rate = newCur === "USD" ? 0.0036 : 0.206;
-      saveState(); 
-      renderBudget(); 
-    };
+    btn.onclick = () => { state.currency = btn.dataset.cur; saveState(); renderBudget(); };
   });
 
   const rateInput = document.getElementById("rateInput");
-  rateInput.onchange = () => { state.rate = Number(rateInput.value) || (state.currency === "USD" ? 0.0036 : 0.206); saveState(); renderBudget(); };
+  rateInput.onchange = () => { state.rate = Number(rateInput.value) || 278; saveState(); renderBudget(); };
 
   document.getElementById("addExpenseBtn").onclick = () => {
     const amt = document.getElementById("amountInput").value;
